@@ -1,0 +1,15 @@
+<div class="top">
+    <h1>{{ title }}</h1>
+    <div class="user" *ngIf="isLoggedIn()">
+      <div class="container">You are signed in {{ userInfo?.info?.name }}</div>
+      <div class="button">
+        <button mat-raised-button color="success" (click)="logout()">
+          Sign Out from Google
+        </button>
+      </div>
+    </div>
+</div>
+  
+<app-co2></app-co2>
+
+<router-outlet></router-outlet>

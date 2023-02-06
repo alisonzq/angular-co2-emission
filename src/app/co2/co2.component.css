@@ -1,0 +1,81 @@
+.structure {
+  background-color: rgb(227, 216, 231);
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.list-csv {
+  min-width: 300px;
+  max-width: 1000px;
+  min-height: 400px;
+  width: 20vw;
+  position: relative;
+  margin-top: 70px;
+  margin-bottom: 70px;
+  background-color: rgb(250, 241, 241);
+  color: rgb(33, 2, 59);
+  align-self: auto;
+}
+
+.average-framerate {
+  display: flex;
+  flex-direction: column;
+  display: block;
+  height: 50px;
+  width: 275px;
+  position: relative;
+  margin-top: 70px;
+  margin-bottom: 30px;
+  background-color: rgb(250, 241, 241);
+  color: rgb(33, 2, 59);
+}
+
+.graph {
+  min-width: 300px;
+  max-width: 3000px;
+  min-height: 200px;
+  height: 37vh;
+  width: 58vw;
+  position: relative;
+  margin-bottom: 70px;
+  background-color: rgb(250, 241, 241);
+  color: rgb(33, 2, 59);
+}
+
+.info {
+  margin-left: 20px;
+  margin-top: 15px;
+}
+
+.title {
+  margin-left: 20px;
+  margin-top: 27px;
+}
+
+#chart {
+  display: block;
+  height: 35vh;
+  width: 58vw;
+}
+
+.file {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  margin-top: 10px;
+  font-size: large;
+}
+
+.value {
+  font-size: large;
+}
+
+.scrollable {
+  overflow: auto;
+  box-sizing: border-box;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
