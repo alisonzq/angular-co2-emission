@@ -1,5 +1,3 @@
-
-   
 import { Component, OnInit } from '@angular/core';
 import { registerables, Chart, ChartConfiguration, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Legend, Tooltip, ChartOptions } from 'node_modules/chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
@@ -9,7 +7,7 @@ import * as d3 from 'd3';
 import { GoogleService } from '../google.service';
 
 export interface FileInfo {
-  countryName: string;
+  fileName: string;
   checked: boolean;
   id: string;
   number: number;
@@ -21,14 +19,13 @@ export interface CO2Info {
   year: number;
 }
 
-//combine data for each country
 interface CountryData {
-  [country: string]: {
-    data: Array<{
-      year: number;
-      co2 : number;
-    }>
-  }
+  country: string;
+  data: Array<{
+    year: number;
+    co2: number;
+  }>;
+  checked: boolean;
 }
 
 @Component({
@@ -39,13 +36,11 @@ interface CountryData {
 export class CO2Component {
 
   fileInfo: FileInfo[] = [];
-  countryName : string[] = []
+  countryName : string[] = [];
+  countryCheck: boolean = false;
 
   constructor(private readonly google : GoogleService) {}
 
-  framerate: string = '';
-  framerate1: string = '';
-  framerate2: string = '';
   fileName: string = '';
   fileName1: string = '';
   fileName2: string = '';
@@ -56,7 +51,7 @@ export class CO2Component {
   info: string[] = []
   disableChecked = false;
 
-  simplifiedCountryData : CountryData = {};
+  simplifiedCountryData : CountryData[] = [];
 
 
   async simplifyCSVfile(object: FileInfo) {
@@ -86,100 +81,75 @@ export class CO2Component {
     })
 
     //combine data
-    let countryData: CountryData = {};
+    let countryData: Array<CountryData> = [];
     for (let entry of simplifiedObjectsArray) {
       let country = entry.country;
       let year = entry.year;
       let co2 = entry.co2;
     
-      if (countryData[country]) {
-        countryData[country].data.push({year: year, co2:co2});
-      } else {
-        countryData[country] = {
-          data: [{year: year, co2:co2}]
-        };
+      let countryExists = false;
+      for (const data of countryData) {
+        if (data.country === country) {
+          data.data.push({ year, co2 });
+          countryExists = true;
+          break;
+        }
+      }
+      if (!countryExists) {
+        countryData.push({
+          country,
+          data: [{ year, co2 }],
+          checked: false
+        });
       }
     }
-    this.simplifiedCountryData = countryData;
     
     return countryData;
   }
 
   //list files and list countries
   ngOnInit(): void {
-
     //list csv files
     this.google.listFiles().subscribe((data) => {
       const file = JSON.parse(data);
       file.files.forEach((obj: { name: any; id: any; }) => {
-        var y: FileInfo = {countryName: obj.name, checked: false, id: obj.id, number: 0};
+        var y: FileInfo = {fileName: obj.name, checked: false, id: obj.id, number: 0};
         this.fileInfo.push(y);
       });
     });
-
-
   }
 
-  
-  //after checking checkbox
-  onChangeFile() {
-    let chartStatus1 = Chart.getChart("myChart1");
-
+  //list countries
+  onSelectFile() {
     this.fileInfo.forEach(obj=>{
-      if(obj.checked === true && chartStatus1 == undefined ) {
-        obj.number =  1
+      if(obj.checked === true) {
         this.disableChecked = true
         this.showBar = true;
-        this.getFileInfo(obj).then(res => {
-          this.framerate2 = res[0]
-          this.fileName2 = res[1]
+
+        this.simplifyCSVfile(obj).then(response => {
+          this.simplifiedCountryData = response;
         })
-      }
-      else//uncheck first graph
-      if(obj.checked === false && obj.number === 1) {
-        obj.number = 0
-        if (chartStatus1 != undefined) {
-          chartStatus1.destroy();
-          this.showBar = false
-        }
-        this.framerate1 = '';
-        this.fileName1 = '';
+
       }
     })
   }
 
-  //simplify csv file
-  async getFileInfo(object: FileInfo) {
+  //after checking country checkbox
+  onChangeFile(country: {data: any[]; checked: any; }) {
+    let chartStatus1 = Chart.getChart("myChart1")
 
-    const data = await lastValueFrom(this.google.getFiles(object.id));
-    this.disableChecked = false;
-    this.showBar = false;
-    var parsed = d3.csvParse(data, d3.autoType);
-    console.log(parsed);
-    const name = object.countryName;
-
-    //list countries
-    this.simplifyCSVfile(object).then(response => {
-      this.countryName = Object.keys(response)
-    })
-
-    /*
-    this.fileInfo.forEach(e=>{
-      let co2 = countryData[e.name].data.find(y => y.year === e.number)?.co2;
-    })
-    */
-
-    
-
-    this.info = [];
-    this.fileName = name;
-    this.info.push(this.framerate);
-    this.info.push(this.fileName);
-
-    //this.makeChart(simplifiedObjectsArray);
-    return this.info;
+    if(country.checked === true && chartStatus1 == undefined ) {
+      this.disableChecked = true;
+      this.makeChart(country.data)
+    }
+    else//uncheck first graph
+    if(country.checked === false ) {
+      if (chartStatus1 != undefined) {
+        chartStatus1.destroy();
+      }
+      this.fileName1 = '';
+    }
   }
-
 
   //create charts
   makeChart(perf: any[]) {
@@ -219,16 +189,6 @@ export class CO2Component {
                 pointStyle: 'line',
               }
             },
-            annotation: {
-              annotations: [{
-                  type:'line',
-                  yMin: 33,
-                  yMax: 33,
-                  borderColor:'#000000',
-                  borderWidth:2,
-              }]
-            },
-        
               
           },
           scales: {
