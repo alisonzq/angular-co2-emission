@@ -1,15 +1,30 @@
-<div class="top">
-    <h1>{{ title }}</h1>
-    <div class="user" *ngIf="isLoggedIn()">
-      <div class="container">You are signed in {{ userInfo?.info?.name }}</div>
-      <div class="button">
-        <button mat-raised-button color="success" (click)="logout()">
-          Sign Out from Google
-        </button>
+<div class="smooth">
+  <div class="header">
+    <ul>
+      <li *ngFor="let link of links">
+        <a [href]="'#' + link">{{ link }}</a>
+      </li>
+    </ul>
+  </div>
+
+  <section *ngFor="let name of names" [id]="name">
+    <ng-container *ngIf="name === 'home'">
+      <h2>Worldwide Carbon Footprint</h2>
+      <div class="top">
+        <div class="user" *ngIf="isLoggedIn()">
+          <div class="container">You are signed in {{ userInfo?.info?.name }}</div>
+        </div>
       </div>
-    </div>
-</div>
+    </ng-container>
+
+    <ng-container *ngIf="name === 'graph'">
+      <app-co2></app-co2>
+    </ng-container>
+
+  </section>
   
-<app-co2></app-co2>
+</div>
+
+
 
 <router-outlet></router-outlet>

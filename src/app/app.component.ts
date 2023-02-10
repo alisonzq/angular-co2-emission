@@ -17,6 +17,9 @@ export class AppComponent {
     })
   }
 
+  links = ["home", "graph", "game", "contact"];
+  names = ["home", "graph", "game", "contact"];
+
   isLoggedIn(): boolean {
     return this.googleService.isLoggedIn()
   }

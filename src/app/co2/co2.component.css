@@ -1,5 +1,4 @@
 .structure {
-  background-color: rgb(227, 216, 231);
   position: relative;
   display: flex;
   flex-wrap: wrap;
@@ -8,39 +7,24 @@
 
 .list-csv {
   min-width: 300px;
-  max-width: 1000px;
-  min-height: 400px;
+  max-width: 500px;
+  min-height: 100px;
+  margin-bottom: 50px;
   width: 20vw;
   position: relative;
-  margin-top: 70px;
-  margin-bottom: 70px;
   background-color: rgb(250, 241, 241);
   color: rgb(33, 2, 59);
   align-self: auto;
-}
-
-.average-framerate {
-  display: flex;
-  flex-direction: column;
-  display: block;
-  height: 50px;
-  width: 275px;
-  position: relative;
-  margin-top: 70px;
-  margin-bottom: 30px;
-  background-color: rgb(250, 241, 241);
-  color: rgb(33, 2, 59);
 }
 
 .graph {
   min-width: 300px;
   max-width: 3000px;
   min-height: 200px;
-  height: 37vh;
-  width: 58vw;
+  height: 50vh;
+  width: 85vw;
   position: relative;
-  margin-bottom: 70px;
-  background-color: rgb(250, 241, 241);
+  background-color: rgb(250, 241, 241, .5);
   color: rgb(33, 2, 59);
 }
 
@@ -56,8 +40,8 @@
 
 #chart {
   display: block;
-  height: 35vh;
-  width: 58vw;
+  height: 45vh;
+  width: 80vw;
 }
 
 .file {

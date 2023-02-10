@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { registerables, Chart, ChartConfiguration, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Legend, Tooltip, ChartOptions } from 'node_modules/chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import { lastValueFrom } from 'rxjs';
-import { Countries } from '../countries';
 import * as d3 from 'd3';
 import { GoogleService } from '../google.service';
+import {continentData} from '../country-by-continent';
 
 export interface FileInfo {
   fileName: string;
@@ -28,6 +28,13 @@ interface CountryData {
   checked: boolean;
 }
 
+interface ContinentInfo {
+  [continent: string]: {
+    countryData: Array<CountryData>
+  }
+}
+
+
 @Component({
   selector: 'app-co2',
   templateUrl: './co2.component.html',
@@ -36,14 +43,11 @@ interface CountryData {
 export class CO2Component {
 
   fileInfo: FileInfo[] = [];
-  countryName : string[] = [];
   countryCheck: boolean = false;
 
   constructor(private readonly google : GoogleService) {}
 
-  fileName: string = '';
-  fileName1: string = '';
-  fileName2: string = '';
+  countryName: string = '';
   showBar = false;
   limitNumber = 2;
   true: boolean[] = [];
@@ -51,7 +55,9 @@ export class CO2Component {
   info: string[] = []
   disableChecked = false;
 
+  sortedByContinent : ContinentInfo = {};
   simplifiedCountryData : CountryData[] = [];
+  continentNames: string[] = [];
 
 
   async simplifyCSVfile(object: FileInfo) {
@@ -59,7 +65,6 @@ export class CO2Component {
     this.disableChecked = false;
     this.showBar = false;
     var parsed = d3.csvParse(data, d3.autoType);
-    console.log(parsed);
     const simplifiedObjectsArray: CO2Info[] = [];
 
     //simplifies the data in csv (country, co2 & year) into simplifiedObjectsArray
@@ -103,8 +108,28 @@ export class CO2Component {
         });
       }
     }
-    
     return countryData;
+  }
+
+  sortByContinent(countryData: CountryData[]) {
+    let continentInfo: ContinentInfo = {};
+    countryData.forEach(country => {
+      continentData.forEach((e: any) => {
+        if (country.country == e.country) {
+          let continent = e.continent as string;
+          if (continentInfo[continent]) {
+            // If continent exists, push the country object into the country array
+            continentInfo[continent].countryData.push(country);
+          } else {
+            // If continent doesn't exist, create a new object with the continent and country array
+            continentInfo[continent] = {
+              countryData: [country]
+            }
+          }
+        }
+      });
+    });
+    return continentInfo;
   }
 
   //list files and list countries
@@ -128,17 +153,21 @@ export class CO2Component {
 
         this.simplifyCSVfile(obj).then(response => {
           this.simplifiedCountryData = response;
+          this.sortedByContinent = this.sortByContinent(response);
+          //this.simplifiedCountryData = this.sortedByContinent['simplifiedCountryData'];
+          this.continentNames = Object.keys(this.sortedByContinent);
         })
-
       }
     })
   }
 
   //after checking country checkbox
-  onChangeFile(country: {data: any[]; checked: any; }) {
-    let chartStatus1 = Chart.getChart("myChart1")
+  onChangeFile(country: {country: string; data: any[]; checked: any;}) {
+    let chartStatus1 = Chart.getChart("myChart1");
+    
 
     if(country.checked === true && chartStatus1 == undefined ) {
+      this.countryName = country.country;
       this.disableChecked = true;
       this.makeChart(country.data)
     }
@@ -147,7 +176,7 @@ export class CO2Component {
       if (chartStatus1 != undefined) {
         chartStatus1.destroy();
       }
-      this.fileName1 = '';
+      this.countryName = '';
     }
   }
 

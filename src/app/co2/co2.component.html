@@ -1,21 +1,22 @@
 <div class="structure"> 
   <mat-card class="list-csv">
     <div class="scrollable">
-      <mat-card-title class="title">List of CSV: </mat-card-title>
-      <mat-card-content class="info">
+      <div class="info">
             <div class="file" *ngFor="let file of fileInfo">
-              <mat-checkbox class="checkbox" [(ngModel)]="file.checked" (change)="onSelectFile()" color="primary">
+              <mat-checkbox class="checkbox" [matMenuTriggerFor]="files" [(ngModel)]="file.checked" (change)="onSelectFile()" color="primary">
                 {{file.fileName}}
               </mat-checkbox>
+              <mat-menu #files="matMenu">
+                <div class = "file" *ngFor="let countryData of simplifiedCountryData">
+                  <mat-checkbox class="checkbox" [(ngModel)]="countryData.checked" (change)="onChangeFile(countryData)" color="primary">
+                    {{countryData.country}}
+                  </mat-checkbox>
+                </div>
+              </mat-menu>
+
             </div>
 
-            <div class = "file" *ngFor="let countryData of simplifiedCountryData">
-              <mat-checkbox class="checkbox" [(ngModel)]="countryData.checked" (change)="onChangeFile(countryData)" color="primary">
-                {{countryData.country}}
-              </mat-checkbox>
-            </div>
-
-      </mat-card-content>
+          </div>
     </div>
     <mat-card-footer class="bar">
       <mat-progress-bar mode="indeterminate" color="primary" *ngIf="showBar"></mat-progress-bar>
@@ -24,21 +25,11 @@
 
   
   <div class="graphs">
-  
     <mat-card class="graph">
-      <mat-card-title>Graph 1: {{fileName1}} </mat-card-title>
+      <mat-card-title>{{countryName}} </mat-card-title>
       <mat-card-content>
         <div id="chart">
           <canvas id="myChart1"></canvas>
-        </div>
-      </mat-card-content>
-    </mat-card> 
-  
-    <mat-card class="graph">
-      <mat-card-title>Graph 2: {{fileName2}}</mat-card-title>
-      <mat-card-content>
-        <div id="chart">
-          <canvas id="myChart2"></canvas>
         </div>
       </mat-card-content>
     </mat-card> 
