@@ -29,9 +29,8 @@ interface CountryData {
 }
 
 interface ContinentInfo {
-  [continent: string]: {
-    countryData: Array<CountryData>
-  }
+  continent: string;
+  countryData: Array<CountryData>;
 }
 
 
@@ -45,6 +44,8 @@ export class CO2Component {
   fileInfo: FileInfo[] = [];
   countryCheck: boolean = false;
 
+  private dataLoaded = false;
+
   constructor(private readonly google : GoogleService) {}
 
   countryName: string = '';
@@ -55,9 +56,9 @@ export class CO2Component {
   info: string[] = []
   disableChecked = false;
 
-  sortedByContinent : ContinentInfo = {};
+  sortedByContinent : ContinentInfo[] = [];
   simplifiedCountryData : CountryData[] = [];
-  continentNames: string[] = [];
+  currentContinent: string = "";
 
 
   async simplifyCSVfile(object: FileInfo) {
@@ -112,19 +113,23 @@ export class CO2Component {
   }
 
   sortByContinent(countryData: CountryData[]) {
-    let continentInfo: ContinentInfo = {};
+    let continentInfo: Array<ContinentInfo> = [];
     countryData.forEach(country => {
       continentData.forEach((e: any) => {
         if (country.country == e.country) {
           let continent = e.continent as string;
-          if (continentInfo[continent]) {
+
+          let continentExists = continentInfo.find(c => c.continent == continent);
+          if (continentExists) {
             // If continent exists, push the country object into the country array
-            continentInfo[continent].countryData.push(country);
+            continentExists.countryData.push(country);
           } else {
             // If continent doesn't exist, create a new object with the continent and country array
-            continentInfo[continent] = {
+            let newContinent = {
+              continent: continent,
               countryData: [country]
-            }
+            };
+            continentInfo.push(newContinent);
           }
         }
       });
@@ -142,23 +147,24 @@ export class CO2Component {
         this.fileInfo.push(y);
       });
     });
+
+    //this.onSelectFile();
   }
 
   //list countries
   onSelectFile() {
-    this.fileInfo.forEach(obj=>{
-      if(obj.checked === true) {
-        this.disableChecked = true
-        this.showBar = true;
-
-        this.simplifyCSVfile(obj).then(response => {
-          this.simplifiedCountryData = response;
-          this.sortedByContinent = this.sortByContinent(response);
-          //this.simplifiedCountryData = this.sortedByContinent['simplifiedCountryData'];
-          this.continentNames = Object.keys(this.sortedByContinent);
-        })
-      }
-    })
+    if (!this.dataLoaded) {
+      this.fileInfo.forEach(obj=>{
+          this.disableChecked = true
+          this.showBar = true;
+  
+          this.simplifyCSVfile(obj).then(response => {
+            this.simplifiedCountryData = response;
+            this.sortedByContinent = this.sortByContinent(response);
+          })
+      })
+      this.dataLoaded = true;
+    }
   }
 
   //after checking country checkbox
@@ -166,10 +172,10 @@ export class CO2Component {
     let chartStatus1 = Chart.getChart("myChart1");
     
 
-    if(country.checked === true && chartStatus1 == undefined ) {
+    if(country.checked === true) {
       this.countryName = country.country;
       this.disableChecked = true;
-      this.makeChart(country.data)
+      this.makeChart(country.data);
     }
     else//uncheck first graph
     if(country.checked === false ) {
@@ -183,16 +189,23 @@ export class CO2Component {
   //create charts
   makeChart(perf: any[]) {
 
+    var countryLabel: string = '';
+    this.simplifiedCountryData.forEach(e=>{
+      if(e.checked === true) {
+        countryLabel = e.country;
+      }
+    })
+  
     Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, annotationPlugin, Legend, Tooltip);
-
-    var perfData1 = perf.map(function(d) {return d.co2})
+  
+    var perfData1 = perf.map(function(d) {return d.co2});
     var perfLabel = perf.map(function(d) {return d.year})
-
+  
     const data = {
       labels: perfLabel,
       datasets: [
         {
-          label: 'CO2',
+          label: countryLabel,
           data: perfData1,
           tension: 0.4,
           pointRadius: 0,
@@ -201,9 +214,10 @@ export class CO2Component {
         },
       ]
     }
-
+  
+    var chart;
     if(Chart.getChart("myChart1") == undefined) {
-      var chart = new Chart('myChart1', {
+      chart = new Chart('myChart1', {
         type: 'line',
         data: data,
         options: {
@@ -218,7 +232,7 @@ export class CO2Component {
                 pointStyle: 'line',
               }
             },
-              
+  
           },
           scales: {
             y: {
@@ -227,6 +241,19 @@ export class CO2Component {
           }
         },
       })
+    } else {
+      chart = Chart.getChart("myChart1");
+      if(chart) {
+        chart.data.datasets.push({
+          label: countryLabel,
+          data: perfData1,
+          tension: 0.4,
+          pointRadius: 0,
+          pointHoverRadius: 2,
+          borderColor: '#42a7f5',
+        });
+        chart.update();
+      }
     }
   }
   

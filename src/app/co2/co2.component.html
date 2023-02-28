@@ -2,21 +2,32 @@
   <mat-card class="list-csv">
     <div class="scrollable">
       <div class="info">
-            <div class="file" *ngFor="let file of fileInfo">
-              <mat-checkbox class="checkbox" [matMenuTriggerFor]="files" [(ngModel)]="file.checked" (change)="onSelectFile()" color="primary">
-                {{file.fileName}}
-              </mat-checkbox>
-              <mat-menu #files="matMenu">
-                <div class = "file" *ngFor="let countryData of simplifiedCountryData">
-                  <mat-checkbox class="checkbox" [(ngModel)]="countryData.checked" (change)="onChangeFile(countryData)" color="primary">
-                    {{countryData.country}}
+
+        <div class="file" *ngFor="let file of fileInfo">
+          <button mat-button class="checkbox" [matMenuTriggerFor]="continents" (click)="onSelectFile()">
+            CO2 by country
+          </button>
+
+          <mat-menu #continents="matMenu">
+            <div *ngFor="let continent of sortedByContinent">
+              <button mat-menu-item [matMenuTriggerFor]="countries" (click)="currentContinent = continent.continent">{{continent.continent}}</button>
+            </div>
+          </mat-menu>
+
+          <mat-menu #countries="matMenu">
+            <div *ngFor="let continent of sortedByContinent">
+              <div *ngIf="currentContinent === continent.continent">
+                <div class = "file" *ngFor="let country of continent.countryData">
+                  <mat-checkbox class="checkbox" [(ngModel)]="country.checked" (change)="onChangeFile(country)" color="primary">
+                    {{country.country}}
                   </mat-checkbox>
                 </div>
-              </mat-menu>
-
+              </div>
             </div>
+          </mat-menu>
 
-          </div>
+        </div>
+      </div>
     </div>
     <mat-card-footer class="bar">
       <mat-progress-bar mode="indeterminate" color="primary" *ngIf="showBar"></mat-progress-bar>
