@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
+import { environment } from 'src/environments/environment';
 
 const oAuthConfig: AuthConfig = {
   issuer: 'https://accounts.google.com',
   strictDiscoveryDocumentValidation: false,
   redirectUri: window.location.origin,
   clientId:
-    '805581933406-h8j7v9qare3kj8e5p5q1tifl50hlboie.apps.googleusercontent.com',
+    environment.clientId,
   scope:
     'openid profile email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.metadata https://www.googleapis.com/auth/drive.file',
 };
