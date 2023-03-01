@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment';
 const oAuthConfig: AuthConfig = {
   issuer: 'https://accounts.google.com',
   strictDiscoveryDocumentValidation: false,
-  redirectUri: window.location.origin,
+  redirectUri: 'https://alisonzq.github.io/angular-co2-emission/',
   clientId:
     environment.clientId,
   scope:
